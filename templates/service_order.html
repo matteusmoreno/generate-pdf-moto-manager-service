@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: Arial, sans-serif; padding: 30px; color: #333; }
+        h1 { text-align: center; color: #444; }
+        .info, .products { margin-top: 20px; }
+        .info td { padding: 5px 10px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+        th { background-color: #f0f0f0; }
+    </style>
+</head>
+<body>
+    <h1>Ordem de Serviço</h1>
+
+    <div class="info">
+        <table>
+            <tr><td><strong>Cliente:</strong></td><td>{{ service.customerName }}</td></tr>
+            <tr><td><strong>Moto:</strong></td><td>{{ service.motorcycleBrand }} {{ service.motorcycleModel }} ({{ service.motorcycleYear }})</td></tr>
+            <tr><td><strong>Cor:</strong></td><td>{{ service.motorcycleColor }}</td></tr>
+            <tr><td><strong>Vendedor:</strong></td><td>{{ service.sellerName }}</td></tr>
+            <tr><td><strong>Mecânico:</strong></td><td>{{ service.mechanicName }}</td></tr>
+            <tr><td><strong>Status:</strong></td><td>{{ service.serviceOrderStatus }}</td></tr>
+            <tr><td><strong>Data de Criação:</strong></td><td>{{ service.createdAt[:10] }}</td></tr>
+        </table>
+    </div>
+
+    <div class="products">
+        <h2>Produtos Utilizados</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Produto</th>
+                    <th>Marca</th>
+                    <th>Qtd</th>
+                    <th>Preço Unitário</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in service.products %}
+                <tr>
+                    <td>{{ product.productName }}</td>
+                    <td>{{ product.productBrand }}</td>
+                    <td>{{ product.quantity }}</td>
+                    <td>R$ {{ "%.2f"|format(product.unitaryPrice) }}</td>
+                    <td>R$ {{ "%.2f"|format(product.finalPrice) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div style="margin-top: 20px;">
+        <strong>Serviço:</strong> R$ {{ "%.2f"|format(service.laborPrice) }}<br>
+        <strong>Total:</strong> <span style="font-size: 1.2em; font-weight: bold;">R$ {{ "%.2f"|format(service.totalCost) }}</span>
+    </div>
+</body>
+</html>
