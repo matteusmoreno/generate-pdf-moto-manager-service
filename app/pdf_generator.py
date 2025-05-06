@@ -90,26 +90,28 @@ def generate_pdf_from_service_order(order_id: int):
         story.append(info_table)
         story.append(Spacer(1, 0.5*cm))
 
+        #STATUS DA OS
+
         # Produtos + preços
-        product_data = [["Descrição", "Marca", "Qtd", "V. Unitário (R$)", "V. Final (R$)"]]
+        product_data = [["Descrição", "Marca", "Qtd", "Valor Unitário", "Valor Final"]]
 
         for product in data.get("products", []):
             row = [
                 safe_get(product, 'productName'),
                 safe_get(product, 'productBrand'),
                 str(product.get('quantity') or 0),
-                f"{(product.get('unitaryPrice') or 0):.2f}",
-                f"{(product.get('finalPrice') or 0):.2f}"
+                f"R${(product.get('unitaryPrice') or 0):.2f}",
+                f"R${(product.get('finalPrice') or 0):.2f}"
             ]
             product_data.append(row)
 
         # Linha de mão de obra
         labor_price = data.get("laborPrice", 0.0)
-        product_data.append(["Mão de Obra", " ", " ", " ", f"{labor_price:.2f}"])
+        product_data.append(["Mão de Obra", " ", " ", " ", f"R${labor_price:.2f}"])
 
         # Linha de total (negrito)
         total_cost = data.get("totalCost", 0.0)
-        product_data.append(["TOTAL", " ", " ", " ", f"{total_cost:.2f}"])
+        product_data.append(["TOTAL", " ", " ", " ", f"R${total_cost:.2f}"])
 
         product_table = Table(product_data, colWidths=[6*cm, 3*cm, 1.5*cm, 3*cm, 3*cm])
         product_table.setStyle(TableStyle([
@@ -123,10 +125,41 @@ def generate_pdf_from_service_order(order_id: int):
         story.append(product_table)
         story.append(Spacer(1, 0.5*cm))
 
-        # Descrição
-        story.append(Paragraph("Descrição:", styles['Heading3']))
-        for line in safe_get(data, "description").splitlines():
-            story.append(Paragraph(line, styles['Normal']))
+        # Descrição (título + conteúdo na mesma linha)
+        description = safe_get(data, "description", "")
+        desc_text = f"<b>Descrição:</b> {description}"
+        custom_style = styles['Normal']
+        custom_style.fontSize = 10
+        story.append(Paragraph(desc_text, custom_style))
+
+        # Espaço antes da assinatura
+        story.append(Spacer(1, 2 * cm))
+
+        # Linha de assinatura (com traço)
+        signature_table = Table(
+            [[""]],
+            colWidths=[10 * cm],
+            hAlign='CENTER'
+        )
+        signature_table.setStyle(TableStyle([
+            ('LINEABOVE', (0, 0), (-1, -1), 0.7, colors.black),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+        ]))
+        story.append(signature_table)
+
+        # Nome do cliente centralizado abaixo da linha
+        client_name = safe_get(data, 'customerName', '')
+        name_table = Table(
+            [[client_name]],
+            colWidths=[10 * cm],
+            hAlign='CENTER'
+        )
+        name_table.setStyle(TableStyle([
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('FONTSIZE', (0, 0), (-1, -1), 10),
+            ('TOPPADDING', (0, 0), (-1, -1), -15),  # Aproxima do traço acima
+        ]))
+        story.append(name_table)
 
         # Geração final
         doc.build(story)
