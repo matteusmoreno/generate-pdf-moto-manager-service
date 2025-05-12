@@ -1,0 +1,25 @@
+{
+  "family": "generate-pdf-task",
+  "networkMode": "awsvpc",
+  "containerDefinitions": [
+    {
+      "name": "generate-pdf-container",
+      "image": "matteusmoreno/generate-pdf-garage-manager:1.0.0",
+      "memory": 512,
+      "cpu": 256,
+      "essential": true,
+      "portMappings": [
+        {
+          "containerPort": 5000,
+          "hostPort": 5000,
+          "protocol": "tcp"
+        }
+      ]
+    }
+  ],
+  "requiresCompatibilities": [
+    "FARGATE"
+  ],
+  "cpu": "256",
+  "memory": "512"
+}
