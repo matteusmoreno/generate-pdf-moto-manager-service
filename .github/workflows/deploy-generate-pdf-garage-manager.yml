@@ -13,31 +13,25 @@ jobs:
       - name: Checkout código-fonte
         uses: actions/checkout@v3
 
-      # Passo para configurar Python
-      - name: Set up Python 3.11
+      - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
 
-      # Instalação das dependências Python
-      - name: Install dependencies
+      - name: Instalar dependências
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install flask reportlab requests
 
-      # Login no Docker Hub
       - name: Login no Docker Hub
         run: echo "${{ secrets.DOCKER_HUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
 
-      # Build da imagem Docker
       - name: Build da imagem Docker
         run: docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/generate-pdf-garage-manager:1.0.0 .
 
-      # Push da imagem para o Docker Hub
       - name: Push para Docker Hub
         run: docker push ${{ secrets.DOCKER_HUB_USERNAME }}/generate-pdf-garage-manager:1.0.0
 
-      # Configuração das credenciais AWS
       - name: Configurar credenciais AWS
         uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -45,11 +39,15 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-2
 
-      # Atualizar serviço na AWS (usando ECS ou EC2, dependendo do seu setup)
-      - name: Atualizar serviço na AWS
+      - name: Registrar ou atualizar a definição de Task no ECS
+        run: |
+          aws ecs register-task-definition \
+            --cli-input-json file://ecs-task-definition.json
+
+      - name: Atualizar serviço no ECS
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
-          task-definition: ecs-task-definition.json  # Defina o caminho para o arquivo de task-definition do ECS
-          service: generate-pdf-service  # Nome do serviço ECS
-          cluster: garage-manager-cluster  # Nome do cluster ECS
+          task-definition: generate-pdf-task
+          service: generate-pdf-service # Certifique-se de que esse nome de serviço está correto
+          cluster: garage-manager-cluster
           wait-for-service-stability: true
