@@ -45,12 +45,12 @@ jobs:
           TASK_DEF_ARN=$(aws ecs register-task-definition \
             --cli-input-json file://ecs-task-definition.json \
             --query 'taskDefinition.taskDefinitionArn' --output text)
-          echo "task_definition_arn=$TASK_DEF_ARN" >> $GITHUB_OUTPUT
+          echo "task-definition=$TASK_DEF_ARN" >> "$GITHUB_OUTPUT"
 
       - name: Atualizar serviço no ECS
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
-          task-definition: ${{ steps.register-task.outputs.task_definition_arn }}
+          task-definition: ${{ steps.register-task.outputs.task-definition }}
           service: pdf-generator-task-principal
           cluster: garage-manager-cluster
           wait-for-service-stability: true
