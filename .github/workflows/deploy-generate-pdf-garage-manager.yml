@@ -40,14 +40,17 @@ jobs:
           aws-region: us-east-2
 
       - name: Registrar ou atualizar a definição de Task no ECS
+        id: register-task
         run: |
-          aws ecs register-task-definition \
-            --cli-input-json file://ecs-task-definition.json
+          TASK_DEF_ARN=$(aws ecs register-task-definition \
+            --cli-input-json file://ecs-task-definition.json \
+            --query 'taskDefinition.taskDefinitionArn' --output text)
+          echo "task_definition_arn=$TASK_DEF_ARN" >> $GITHUB_OUTPUT
 
       - name: Atualizar serviço no ECS
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
-          task-definition: generate-pdf-task
-          service: generate-pdf-service # Certifique-se de que esse nome de serviço está correto
+          task-definition: ${{ steps.register-task.outputs.task_definition_arn }}
+          service: pdf-generator-task-principal
           cluster: garage-manager-cluster
           wait-for-service-stability: true
