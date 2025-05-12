@@ -48,7 +48,7 @@ jobs:
           TASK_DEF_REVISION=$(aws ecs describe-task-definition \
             --task-definition $TASK_DEF_FAMILY \
             --query 'taskDefinition.revision' --output text)
-          echo "task-definition=${TASK_DEF_FAMILY}:${TASK_DEF_REVISION}" >> "$GITHUB_OUTPUT"
+          echo "::set-output name=task-definition::${TASK_DEF_FAMILY}:${TASK_DEF_REVISION}"
 
       - name: Atualizar serviço no ECS
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
