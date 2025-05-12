@@ -42,10 +42,13 @@ jobs:
       - name: Registrar ou atualizar a definição de Task no ECS
         id: register-task
         run: |
-          TASK_DEF_ARN=$(aws ecs register-task-definition \
+          TASK_DEF_FAMILY=$(aws ecs register-task-definition \
             --cli-input-json file://ecs-task-definition.json \
-            --query 'taskDefinition.taskDefinitionArn' --output text)
-          echo "task-definition=$TASK_DEF_ARN" >> "$GITHUB_OUTPUT"
+            --query 'taskDefinition.family' --output text)
+          TASK_DEF_REVISION=$(aws ecs describe-task-definition \
+            --task-definition $TASK_DEF_FAMILY \
+            --query 'taskDefinition.revision' --output text)
+          echo "task-definition=${TASK_DEF_FAMILY}:${TASK_DEF_REVISION}" >> "$GITHUB_OUTPUT"
 
       - name: Atualizar serviço no ECS
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
