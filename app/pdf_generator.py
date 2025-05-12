@@ -107,7 +107,7 @@ def generate_pdf_from_service_order(order_id: int):
 
         # Linha de mão de obra
         labor_price = data.get("laborPrice", 0.0)
-        product_data.append(["Mão de Obra", " ", " ", " ", f"R${labor_price:.2f}"])
+        product_data.append(["Mão de Obra TEST", " ", " ", " ", f"R${labor_price:.2f}"])
 
         # Linha de total (negrito)
         total_cost = data.get("totalCost", 0.0)
