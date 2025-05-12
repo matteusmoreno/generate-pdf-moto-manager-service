@@ -13,7 +13,7 @@ from reportlab.lib.styles import getSampleStyleSheet
 
 from .utils import safe_get
 
-BASE_URL = "http://localhost:8080"
+BASE_URL = "http://garage-manager-alb-1021797636.us-east-2.elb.amazonaws.com:8080"
 LOGIN_URL = f"{BASE_URL}/auth/login"
 ORDER_URL = f"{BASE_URL}/service-orders/find-by-id"
 USERNAME = "admin"
